@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:weather_app/feature/forecast_screen/presentation/forecast_screen.dart';
 import 'package:weather_app/service/weather_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -192,6 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildWeatherDetail('Sunrise', Icons.wb_sunny, _currentWeather!['forecast']['forecastday'][0]['astro']['sunrise']),
+                _buildWeatherDetail('Sunrise', Icons.wb_sunny, _currentWeather!['forecast']['forecastday'][0]['astro']['sunrise']),
                 _buildWeatherDetail('Sunset', Icons.brightness_3, _currentWeather!['forecast']['forecastday'][0]['astro']['sunset']),
               ],
             ),
@@ -205,11 +207,11 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 50),
             Center(
               child: ElevatedButton(
                 onPressed: () {
-
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ForecastScreen(city: _city),));
                 },
                 child: const Text('Next 7 Days Forecast'),
               ),
@@ -256,7 +258,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 )),
-
 
               ],
             ),
