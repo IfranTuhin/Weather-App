@@ -193,8 +193,8 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildWeatherDetail('Sunrise', Icons.wb_sunny, _currentWeather!['forecast']['forecastday'][0]['astro']['sunrise']),
+                _buildWeatherDetail('Moon Phase', Icons.wb_sunny, _currentWeather!['forecast']['forecastday'][0]['astro']['moon_phase']),
                 _buildWeatherDetail('Sunrise', Icons.wb_sunny, _currentWeather!['forecast']['forecastday'][0]['astro']['sunrise']),
-                _buildWeatherDetail('Sunset', Icons.brightness_3, _currentWeather!['forecast']['forecastday'][0]['astro']['sunset']),
               ],
             ),
 
@@ -203,6 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildWeatherDetail('Humidity', Icons.opacity, _currentWeather!['current']['humidity']),
+                _buildWeatherDetail('Pressure', Icons.opacity, _currentWeather!['current']['pressure_mb']),
                 _buildWeatherDetail('Wild (KPH)', Icons.wind_power, _currentWeather!['current']['wind_kph']),
               ],
             ),
@@ -258,7 +259,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 )),
-
               ],
             ),
           ),
