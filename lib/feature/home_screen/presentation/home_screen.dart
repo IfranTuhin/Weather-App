@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:weather_app/service/weather_service.dart';
 
@@ -16,7 +17,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
 
   final WeatherService _weatherService = WeatherService();
-  String city = 'London';
+  String _city = 'Dhaka';
   Map<String, dynamic>? _currentWeather;
 
   @override
@@ -29,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // Fetch Weather
   Future<void> _fetchWeather() async {
     try{
-      final weatherData = await _weatherService.fetchCurrentWeather(city);
+      final weatherData = await _weatherService.fetchCurrentWeather(_city);
 
       setState(() {
         _currentWeather = weatherData;
@@ -38,6 +39,53 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       print('Error to fetch weather data : $e');
     }
+  }
+
+  void showCitySelectionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Enter City Name'),
+          content: TypeAheadField(
+            suggestionsCallback: (search) async {
+              return await _weatherService.fetchCitySuggestions(search);
+            },
+            builder: (context, controller, focusNode) {
+              return TextField(
+                controller: controller,
+                focusNode: focusNode,
+                autofocus: true,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  labelText: 'City',
+                ),
+              );
+            },
+            itemBuilder: (context, value) {
+              return ListTile(title: Text(value['name']));
+            },
+            onSelected: (city) {
+              setState(() {
+                _city = city['name'].toString();
+                // log('City Name : ${city['name'].toString()}');
+              });
+            },
+          ),
+          actions: [
+            TextButton(onPressed: () {
+              Navigator.pop(context);
+            }, child: const Text('Cancel')),
+            TextButton(onPressed: () {
+              Navigator.pop(context);
+              _fetchWeather();
+            }, child: const Text('Submit')),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -65,6 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ) : Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15),
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -80,9 +129,16 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ListView(
           children: [
             const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {
+                showCitySelectionDialog();
+              },
+              child: Text(_city, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: Colors.white),),
+            ),
             Center(
               child: Column(
                 children: [
+
                   Image.network(
                     'http:${_currentWeather!['current']['condition']['icon']}',
                     height: 100,
@@ -132,11 +188,38 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 45),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildWeatherDetail('Sunrise', Icons.wb_sunny, _currentWeather!['forecast']['forecastday'][0]['astro']['sunrise']),
+                _buildWeatherDetail('Sunset', Icons.brightness_3, _currentWeather!['forecast']['forecastday'][0]['astro']['sunset']),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildWeatherDetail('Humidity', Icons.opacity, _currentWeather!['current']['humidity']),
+                _buildWeatherDetail('Wild (KPH)', Icons.wind_power, _currentWeather!['current']['wind_kph']),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+
+                },
+                child: const Text('Next 7 Days Forecast'),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
+
 
   Widget _buildWeatherDetail(String level, IconData icon, dynamic value) {
     return ClipRRect(
@@ -162,10 +245,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 Icon(icon, color: Colors.white),
                 const SizedBox(height: 8),
                 Text(level, style: GoogleFonts.lato(
-                  fontSize: 22,
-                  color: Colors.white70,
+                  fontSize: 17,
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 )),
+
+                const SizedBox(height: 8),
+                Text(value is String ? value : value.toString(), style: GoogleFonts.lato(
+                  fontSize: 16,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                )),
+
+
               ],
             ),
           ),
